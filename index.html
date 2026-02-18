@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="zh-HK">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>數學選擇題練習器</title>
+  <style>
+    :root {
+      --base-font-size: 16px;
+    }
+
+    /* Midnight Theme (Default) */
+    body.theme-midnight {
+      --bg-main: #0b1020;
+      --bg-card: #121933;
+      --bg-input: #0f172a;
+      --text-primary: #e5e7eb;
+      --text-muted: #9ca3af;
+      --accent: #22c55e;
+      --accent-text: #052e16;
+      --border: #243050;
+      --q-border: #334155;
+      --ok-bg: #052e16;
+      --ok-text: #86efac;
+      --bad-bg: #3f1d1d;
+      --bad-text: #fca5a5;
+    }
+
+    /* Solarized Light Theme */
+    body.theme-solar {
+      --bg-main: #fdf6e3;
+      --bg-card: #eee8d5;
+      --bg-input: #eee8d5;
+      --text-primary: #586e75;
+      --text-muted: #93a1a1;
+      --accent: #b58900;
+      --accent-text: #fdf6e3;
+      --border: #dcd3b8;
+      --q-border: #93a1a1;
+      --ok-bg: #859900;
+      --ok-text: #fdf6e3;
+      --bad-bg: #dc322f;
+      --bad-text: #fdf6e3;
+    }
+
+    /* Cyberpunk Theme */
+    body.theme-cyber {
+      --bg-main: #000000;
+      --bg-card: #0d0d0d;
+      --bg-input: #1a1a1a;
+      --text-primary: #00ff41;
+      --text-muted: #008f11;
+      --accent: #ff00ff;
+      --accent-text: #000000;
+      --border: #00ff41;
+      --q-border: #00ff41;
+      --ok-bg: #00ff41;
+      --ok-text: #000000;
+      --bad-bg: #ff0000;
+      --bad-text: #ffffff;
+    }
+
+    /* Sepia Theme */
+    body.theme-sepia {
+      --bg-main: #f4ecd8;
+      --bg-card: #e8dab9;
+      --bg-input: #e0cf9f;
+      --text-primary: #5b4636;
+      --text-muted: #8c7b6c;
+      --accent: #d35400;
+      --accent-text: #fef9ef;
+      --border: #c9b38c;
+      --q-border: #a68b6a;
+      --ok-bg: #27ae60;
+      --ok-text: #fef9ef;
+      --bad-bg: #c0392b;
+      --bad-text: #fef9ef;
+    }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans TC", sans-serif;
+      background: var(--bg-main);
+      color: var(--text-primary);
+      font-size: var(--base-font-size);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .wrap {
+      max-width: 980px;
+      margin: 24px auto;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.875rem;
+    }
+
+    input:not([type="checkbox"]):not([type="radio"]),
+    button,
+    select {
+      border-radius: 10px;
+      border: 1px solid var(--q-border);
+      background: var(--bg-input);
+      color: var(--text-primary);
+      padding: 10px;
+      font-size: 1rem;
+    }
+
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: 1.125rem;
+      height: 1.125rem;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: var(--accent);
+      color: var(--accent-text);
+      font-weight: 700;
+    }
+
+    button.secondary {
+      background: var(--text-muted);
+      color: var(--bg-main);
+    }
+
+    .q {
+      border: 1px solid var(--q-border);
+      border-radius: 12px;
+      padding: 12px;
+      margin: 10px 0;
+      background: var(--bg-input);
+    }
+
+    .q h3 {
+      margin: 0 0 10px;
+      font-size: 17px;
+    }
+
+    .opt {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 8px 0;
+    }
+
+    .opt input {
+      width: auto;
+      margin-top: 2px;
+    }
+
+    .opt .opt-text {
+      display: block;
+      white-space: nowrap;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      font-size: 0.9375rem;
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .controls .full {
+      grid-column: 1 / -1;
+    }
+
+    .topic-group {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--q-border);
+      border-radius: 10px;
+      background: var(--bg-input);
+    }
+
+    .topic-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .topic-item input {
+      margin: 0;
+    }
+
+    .hidden-after-generate {
+      display: block;
+    }
+
+    .show-after-generate {
+      display: none;
+    }
+
+    .collapsed .hidden-after-generate {
+      display: none !important;
+    }
+
+    .collapsed .show-after-generate {
+      display: inline-block;
+    }
+
+    .theme-btn {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      z-index: 100;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .font-controls {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .font-sample {
+      padding: 12px;
+      border: 1px dashed var(--q-border);
+      border-radius: 8px;
+      background: var(--bg-main);
+      text-align: center;
+      font-size: var(--base-font-size);
+    }
+
+    .slider-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--q-border);
+      appearance: none;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--accent);
+      cursor: pointer;
+    }
+
+    @media (max-width: 700px) {
+      .controls {
+        grid-template-columns: 1fr;
+      }
+
+      .controls .full {
+        grid-column: 1 / -1;
+      }
+
+      .controls input:not([type="checkbox"]),
+      .controls button {
+        width: 100%;
+        min-height: 44px;
+      }
+
+      button {
+        padding: 10px 12px;
+        font-size: 15px;
+      }
+    }
+
+    .result {
+      margin-top: 8px;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      white-space: pre-wrap;
+    }
+
+    .ok {
+      background: var(--ok-bg);
+      color: var(--ok-text);
+    }
+
+    .bad {
+      background: var(--bad-bg);
+      color: var(--bad-text);
+    }
+
+    .hide {
+      display: none;
+    }
+
+    .sticky {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .summary {
+      font-weight: 700;
+    }
+  </style>
+</head>
+
+<body>
+  <button id="theme-btn" class="theme-btn" title="切換主題">🎨</button>
+  <main class="wrap">
+    <section class="card sticky" id="controlCard">
+      <h1>第 13 章 複合一元一次不等式</h1>
+      <p class="muted hidden-after-generate">技巧 A 檢查：把四個選項代入題目</p>
+
+      <div class="controls">
+        <!-- Topic selection removed as per user request -->
+
+
+        <div class="font-controls full hidden-after-generate">
+          <div class="slider-row">
+            <span class="muted">字體大小</span>
+            <input type="range" id="font-slider" min="12" max="24" value="16">
+            <span id="font-val" class="muted">16px</span>
+          </div>
+          <div class="font-sample" id="font-sample">
+            這是預覽文字：(x + y)² = x² + 2xy + y²
+          </div>
+        </div>
+        <input id="count" class="hidden-after-generate" type="number" min="1" max="100" value="10"
+          aria-label="題數（1-100）" />
+        <input type="hidden" id="methodMode" value="substitute">
+
+        <button id="genBtn" class="hidden-after-generate">生成題目</button>
+        <button id="submitBtn" class="secondary">交卷批改</button>
+        <button id="resetBtn" class="secondary">清除結果</button>
+        <button id="backBtn" class="secondary show-after-generate">返回開始版面</button>
+        <div class="muted full hidden-after-generate">題數（1-100）</div>
+      </div>
+      <p id="summary" class="summary"></p>
+    </section>
+
+    <section id="questions" class="card">
+      <p class="muted">請先按「生成題目」。</p>
+    </section>
+  </main>
+
+  <script>
+    const $controlCard = document.getElementById('controlCard');
+    const $topicGroup = document.getElementById('topicGroup');
+    const $count = document.getElementById('count');
+    const $methodMode = document.getElementById('methodMode');
+    const $genBtn = document.getElementById('genBtn');
+    const $submitBtn = document.getElementById('submitBtn');
+    const $resetBtn = document.getElementById('resetBtn');
+    const $backBtn = document.getElementById('backBtn');
+    const $questions = document.getElementById('questions');
+    const $summary = document.getElementById('summary');
+
+    let quiz = [];
+
+    function randint(a, b) { return Math.floor(Math.random() * (b - a + 1)) + a; }
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function shuffle(arr) {
+      const a = [...arr];
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function buildCompoundInequalityQuestion(i) {
+      const a = randint(2, 6);
+      const c = randint(2, 6);
+      const K = randint(10, 50);
+
+      const v_L = randint(-5, 5);
+      const v_R = v_L + randint(3, 10);
+
+      const b = a * v_R - K;
+      const d = K - c * v_L;
+
+      const rel1 = pick(['<', '≤']);
+      const rel2 = pick(['<', '≤']);
+
+      const stem = `Q. ${a}y ${b >= 0 ? '-' : '+'} ${Math.abs(b)} ${rel1} ${K} ${rel2} ${c}y ${d >= 0 ? '+' : '-'} ${Math.abs(d)} 的解為`;
+
+      const correctRange = `${v_L} ${rel2 === '<' ? '<' : '≤'} y ${rel1 === '<' ? '<' : '≤'} ${v_R}`;
+
+      const options = shuffle([
+        { text: correctRange, ok: true },
+        { text: `${v_L} ${rel1 === '<' ? '<' : '≤'} y ${rel2 === '<' ? '<' : '≤'} ${v_R}`, ok: false },
+        { text: `${v_R - v_L} < y ≤ ${v_R + v_L}`, ok: false },
+        { text: `${-v_R} < y ≤ ${-v_L}`, ok: false }
+      ]).map((o, idx) => ({ ...o, label: 'ABCD'[idx] }));
+
+      options.forEach((o, idx) => o.label = 'ABCD'[idx]);
+
+      const subSteps = options.map(opt => {
+        const rangeMatch = opt.text.match(/(-?\d+)\s*([<≤])\s*y\s*([<≤])\s*(-?\d+)/);
+        let testVal;
+        if (rangeMatch) {
+          const low = parseInt(rangeMatch[1]);
+          const high = parseInt(rangeMatch[4]);
+          testVal = opt.ok ? Math.floor((low + high) / 2) : (Math.random() > 0.5 ? low - 1 : high + 1);
+        } else {
+          testVal = v_L - 1;
+        }
+
+        const leftSide = a * testVal - b;
+        const rightSide = c * testVal + d;
+        const isOk = (rel1 === '<' ? leftSide < K : leftSide <= K) && (rel2 === '<' ? K < rightSide : K <= rightSide);
+
+        return `選項 ${opt.label}：代入 y = ${testVal}，${leftSide} ${rel1} ${K} ${rel2} ${rightSide}，這是${isOk ? '可能' : '不可能'}的。`;
+      });
+
+      const substituteMethod = `【代入選項法】<br>善用四個選項 (A, B, C, D) 所提供的值。<br>步驟 1：對於各選項，把合適的值代入所給複合不等式中。<br>${subSteps.join('<br>')}<br>只有符合題意的選項為正確答案。`;
+
+      return { id: i, stem, options, answerLabel: options.find(o => o.ok).label, algebraMethod: substituteMethod, substituteMethod, title: '複合一元一次不等式' };
+    }
+
+    function buildQuestion(i, topic) {
+      return buildCompoundInequalityQuestion(i);
+    }
+
+    function renderQuiz() {
+      if (!quiz.length) {
+        $questions.innerHTML = '<p class="muted">請先按「生成題目」。</p>';
+        return;
+      }
+
+      $questions.innerHTML = quiz.map(q => `
+          <div class="q" data-id="${q.id}">
+            <div class="muted" style="margin-bottom: 5px;">[${q.title}]</div>
+            <h3>${q.id}. ${q.stem}</h3>
+            ${q.options.map(opt => `
+              <label class="opt">
+                <input type="radio" name="q-${q.id}" value="${opt.label}">
+                <span class="opt-text">${opt.label}. ${opt.text}</span>
+              </label>
+            `).join('')}
+            <div id="result-${q.id}" class="result hide"></div>
+          </div>
+        `).join('');
+    }
+
+    function generate() {
+      let n = parseInt($count.value, 10);
+      if (Number.isNaN(n) || n < 1) n = 1;
+      if (n > 100) n = 100;
+      $count.value = n;
+
+      quiz = Array.from({ length: n }, (_, idx) => {
+        return buildCompoundInequalityQuestion(idx + 1);
+      });
+
+      $summary.textContent = `已生成 ${n} 題。請作答後按「交卷批改」。`;
+
+      $controlCard.classList.add('collapsed');
+      renderQuiz();
+    }
+
+    function grade() {
+      if (!quiz.length) {
+        alert('請先生成題目');
+        return;
+      }
+
+      let answered = 0;
+      let correct = 0;
+
+      for (const q of quiz) {
+        const checked = document.querySelector(`input[name="q-${q.id}"]:checked`);
+        const box = document.getElementById(`result-${q.id}`);
+        box.classList.remove('hide', 'ok', 'bad');
+
+        if (!checked) {
+          box.classList.add('bad');
+          box.innerHTML = `未作答。正確答案：${q.answerLabel}`;
+          continue;
+        }
+
+        answered++;
+        if (checked.value === q.answerLabel) {
+          correct++;
+          box.classList.add('ok');
+          box.innerHTML = `✅ 正確（答案：${q.answerLabel}）`;
+        } else {
+          box.classList.add('bad');
+          const methodText = $methodMode.value === 'algebra' ? q.algebraMethod : q.substituteMethod;
+          box.innerHTML = `❌ 錯誤，你選 ${checked.value}；正確答案：${q.answerLabel}<br>${methodText}`;
+        }
+      }
+
+      const total = quiz.length;
+      const wrong = total - correct;
+      $summary.textContent = `完成批改：${correct}/${total} 正確（錯 ${wrong} 題；已作答 ${answered} 題）。`;
+    }
+
+    function resetResult() {
+      for (const q of quiz) {
+        const checked = document.querySelector(`input[name="q-${q.id}"]:checked`);
+        if (checked) checked.checked = false;
+        const box = document.getElementById(`result-${q.id}`);
+        if (box) {
+          box.className = 'result hide';
+          box.textContent = '';
+        }
+      }
+      if (quiz.length) $summary.textContent = `已清除作答，可重新練習。`;
+    }
+
+    function backToStart() {
+      $controlCard.classList.remove('collapsed');
+      $summary.textContent = '已返回開始版面，可重新選擇題型與設定。';
+    }
+
+    // --- Theme & Font Persistence Logic ---
+    const themes = ["theme-midnight", "theme-solar", "theme-cyber", "theme-sepia"];
+    let currentThemeIdx = 0;
+
+    function applyTheme(idx) {
+      document.body.classList.remove(...themes);
+      document.body.classList.add(themes[idx]);
+      localStorage.setItem("math_theme_idx", idx);
+      currentThemeIdx = idx;
+    }
+
+    function applyFontSize(size) {
+      document.documentElement.style.setProperty('--base-font-size', size + 'px');
+      const $slider = document.getElementById('font-slider');
+      const $val = document.getElementById('font-val');
+      if ($slider) $slider.value = size;
+      if ($val) $val.innerText = size + 'px';
+      localStorage.setItem("math_font_size", size);
+    }
+
+    // Initialize
+    const savedTheme = localStorage.getItem("math_theme_idx");
+    if (savedTheme !== null) {
+      applyTheme(parseInt(savedTheme));
+    } else {
+      applyTheme(0);
+    }
+
+    const savedFont = localStorage.getItem("math_font_size");
+    if (savedFont !== null) {
+      applyFontSize(parseInt(savedFont));
+    }
+
+    document.getElementById('theme-btn').addEventListener('click', () => {
+      const nextIdx = (currentThemeIdx + 1) % themes.length;
+      applyTheme(nextIdx);
+    });
+
+    document.getElementById('font-slider').addEventListener('input', (e) => {
+      applyFontSize(e.target.value);
+    });
+
+    $genBtn.addEventListener('click', generate);
+    $submitBtn.addEventListener('click', grade);
+    $resetBtn.addEventListener('click', resetResult);
+    $backBtn.addEventListener('click', backToStart);
+  </script>
+</body>
+
+</html>
